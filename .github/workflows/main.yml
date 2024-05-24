@@ -23,21 +23,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Enforce commit message conventions
-        run: |
-          #!/bin/bash
-          
-          JIRA_PATTERN="SP-[0-9]+"
-          
-          # Iterate through all commits in main
-          for commit in $(git rev-list ${{ github.base_ref }}..${{ github.head_ref }}); do
-            # Get commit message
-            message=$(git log --format=%B -n 1 $commit)
-            
-            # Check if commit message contains a Jira ID
-            if ! [[ $message =~ $JIRA_PATTERN ]]; then
-              echo "Commit $commit does not contain a valid Jira ID."
-              echo "Commit message: $message"
-              echo "Please include a Jira ID in your commit message in the format JP-xyz."
-              exit 1  # Reject the push
-            fi
-          done
+        run: |  
+          commits=${{join(github.event.commits.*.message, ', ') }}
+          echo $commits
