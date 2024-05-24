@@ -32,7 +32,7 @@ jobs:
         run: |
           #!/bin/bash
           
-          JIRA_PATTERN="JP-[0-9]+"
+          JIRA_PATTERN="SP-[0-9]+"
           
           # Get the latest commit SHA in main
           LATEST_COMMIT=$(git rev-parse origin/main)
