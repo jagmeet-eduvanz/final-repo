@@ -24,7 +24,7 @@ jobs:
 
       - name: Debugging
         run: |
-          git fetch --depth=1 origin +refs/heads/main:refs/remotes/origin/main
+          git fetch --depth=0 origin +refs/heads/main:refs/remotes/origin/main
           echo "Latest commit SHA in main: $(git rev-parse origin/main)"
           git log --oneline origin/main
 
