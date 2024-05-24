@@ -1,34 +1,47 @@
-strategy:
-  matrix:
-    node-version: [20.x]
-steps:
-  - name: Checkout repository
-    uses: actions/checkout@v2
-  - name: Set up Node.js
-    uses: actions/setup-node@v3
-    with:
-      node-version: ${{ matrix.node-version }}
-  - name: Debugging
-    run: |
-      git fetch --depth=1 origin +refs/heads/main:refs/remotes/origin/main
-      echo "Latest commit SHA in main: $(git rev-parse origin/main)"
-      git log --oneline origin/main
-  - name: Enforce commit message conventions
-    run: |
-      #!/bin/bash
+name: Enforce Commit Message Conventions
 
-      JIRA_PATTERN="SP-[0-9]+"
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  enforce-commit-messages:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20.x]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
       
-      # Iterate through all commits in main
-      for commit in $(git log --format=%H origin/main); do
-        # Get commit message
-        message=$(git log --format=%B -n 1 $commit)
-        
-        # Check if commit message contains a Jira ID
-        if ! [[ $message =~ $JIRA_PATTERN ]]; then
-          echo "Commit $commit does not contain a valid Jira ID."
-          echo "Commit message: $message"
-          echo "Please include a Jira ID in your commit message in the format JP-xyz."
-          exit 1  # Reject the push
-        fi
-      done
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      
+      - name: Debugging
+        run: |
+          git fetch --depth=1 origin +refs/heads/main:refs/remotes/origin/main
+          echo "Latest commit SHA in main: $(git rev-parse origin/main)"
+          git log --oneline origin/main
+      
+      - name: Enforce commit message conventions
+        run: |
+          #!/bin/bash
+
+          JIRA_PATTERN="SP-[0-9]+"
+          
+          # Iterate through all commits in main
+          for commit in $(git log --format=%H origin/main); do
+            # Get commit message
+            message=$(git log --format=%B -n 1 $commit)
+            
+            # Check if commit message contains a Jira ID
+            if ! [[ $message =~ $JIRA_PATTERN ]]; then
+              echo "Commit $commit does not contain a valid Jira ID."
+              echo "Commit message: $message"
+              echo "Please include a Jira ID in your commit message in the format JP-xyz."
+              exit 1  # Reject the push
+            fi
+          done
