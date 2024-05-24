@@ -22,23 +22,14 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Debugging
-        run: |
-          git fetch --depth=0 origin +refs/heads/main:refs/remotes/origin/main
-          echo "Latest commit SHA in main: $(git rev-parse origin/main)"
-          git log --oneline origin/main
-
       - name: Enforce commit message conventions
         run: |
           #!/bin/bash
           
           JIRA_PATTERN="SP-[0-9]+"
           
-          # Get the latest commit SHA in main
-          LATEST_COMMIT=$(git rev-parse origin/main)
-          
           # Iterate through all commits in main
-          for commit in $(git log --format=%H $LATEST_COMMIT); do
+          for commit in $(git rev-list ${{ github.base_ref }}..${{ github.head_ref }}); do
             # Get commit message
             message=$(git log --format=%B -n 1 $commit)
             
